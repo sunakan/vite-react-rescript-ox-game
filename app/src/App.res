@@ -50,7 +50,8 @@ module Game = {
       | _ => false // ありえない
       }
     }
-    Js.Array2.length(Js.Array2.filter(lines, win)) > 0
+    open Js.Array2
+    lines->filter(win)->length > 0
   }
   @react.component
   let make = () => {
@@ -68,26 +69,27 @@ module Game = {
       })
     }
     let handleClick = index => {
-      let history = Js.Array2.slice(state.history, ~start=0, ~end_=state.stepNumber + 1)
-      let current = history[Js.Array2.length(history) - 1]
-      let squares = Js.Array2.copy(current.squares)
+      open Js.Array2
+      let history = state.history->slice(~start=0, ~end_=state.stepNumber + 1)
+      let current = history[history->length - 1]
+      let squares = current.squares->copy
       if calculateWinner(squares) || squares[index] != None {
         ()
       } else {
         squares[index] = state.xIsNext ? X : O
         setState(_ => {
-          history: Js.Array2.concat(history, [{squares: squares}]),
+          history: history->concat([{squares: squares}]),
           xIsNext: !state.xIsNext,
-          stepNumber: Js.Array2.length(history),
+          stepNumber: history->length,
         })
       }
     }
     let history = state.history
     let current = history[state.stepNumber]
-
-    let moves = Js.Array2.mapi(history, (_, move) => {
-      let desc = "Go to move #" ++ Js.Int.toString(move)
-      <li key={Js.Int.toString(move)}>
+    open Js.Array2
+    let moves = history->mapi((_, move) => {
+      let desc = "Go to move #" ++ move->Js.Int.toString
+      <li key={move->Js.Int.toString}>
         <button onClick={_ => jumpTo(~step=move)}> {React.string(desc)} </button>
       </li>
     })
